@@ -4,7 +4,8 @@ import paho.mqtt.client as mqtt
 from flask import Flask, render_template, request
 
 mqttc = mqtt.Client()
-mqttc.connect("iot.eclipse.org", 1883, 60)
+#Local host running MQTT-Mosquitto Broker
+mqttc.connect("127.0.0.1", 1883, 60)
 mqttc.loop_start()
 
 app = Flask(__name__)
@@ -23,6 +24,20 @@ def main():
 #REST CALL HANDLING
 @app.route("/rgb/<value>")
 def sendRGB(value):
+    #Converting hex value to decimal
+    red = int(value[0:2] , 16)
+    green = int(value[2:4] , 16)
+    blue = int(value[4:6] , 16)
+
+    #Converting them to comma seperated string for MQTT broker
+    red = str(red)
+    green = str(green)
+    blue = str(blue)
+
+    #Concating in comma seperated form
+    value = red + ',' + green + ',' + blue
+
+    #Publishing string value under RGB Topic
     mqttc.publish("RGB", value)
     return value
 
