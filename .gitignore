@@ -1,0 +1,4 @@
+firmware/nodemcu/.pioenvs
+firmware/nodemcu/.piolibdeps
+firmware/nodemcu/.clang_complete
+firmware/nodemcu/.gcc-flags.json

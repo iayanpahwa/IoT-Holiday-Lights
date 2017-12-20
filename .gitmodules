@@ -1,0 +1,6 @@
+[submodule "firmware/nodemcu/lib/Adafruit_NeoPixel"]
+	path = firmware/nodemcu/lib/Adafruit_NeoPixel
+	url = https://github.com/adafruit/Adafruit_NeoPixel.git
+[submodule "firmware/nodemcu/lib/PubSubClient"]
+	path = firmware/nodemcu/lib/PubSubClient
+	url = https://github.com/knolleary/pubsubclient.git

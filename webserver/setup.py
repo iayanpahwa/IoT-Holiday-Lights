@@ -38,7 +38,7 @@ def sendRGB(value):
     value = red + ',' + green + ',' + blue
 
     #Publishing string value under RGB Topic
-    mqttc.publish("RGB", value)
+    mqttc.publish("cafeteria/trees", value)
     return value
 
 
