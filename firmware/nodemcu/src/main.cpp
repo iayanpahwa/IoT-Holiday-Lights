@@ -1,16 +1,27 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include <Adafruit_NeoPixel.h>
 
-// Pin Mapping definition of analog RGB LED strip connected to NodeMCU board
-#define RED D8
-#define GREEN D5
-#define BLUE D6
+#define SERIAL_DEBUG   1
+#define NEOPIXEL       1
+#define ANALOG_RGB     1 
+
+#define NEOPIXEL_PIN   D8 // Pin on which Neopicel LED strip is connected
+#define NUMPIXELS      60 // Number of Neopixels LEDs in strip
+
+#define RED            D2
+#define GREEN          D5 // Pin mapping for Analog RGB LED strip
+#define BLUE           D6 
 
 // Variable to hold network parameters
 const char* ssid = "........";
 const char* password = "........";
-const char* mqtt_server = "xxx.xxx.xxx.xxx"; //Address or IP
-const char* TOPIC = "cafeteria/trees";
+const char* mqtt_server = "***.***.***.***"; //Address or IP
+const char* TOPIC = "myTopic";
+
+#if NEOPIXEL
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
+#endif
 
 // Class Instances
 WiFiClient espClient;
@@ -23,36 +34,50 @@ void callback(char* , byte* , unsigned int); // MQTT callback function
 // Program starts here
 void setup() {
 
+  #if SERIAL_DEBUG
+  Serial.begin(115200); // For Serial debugging
+  #endif
+
+  #if ANALOG_RGB
   pinMode(RED, OUTPUT);
   pinMode(GREEN, OUTPUT); // Declare pins as output for PWM
   pinMode(BLUE, OUTPUT);
-  // For Serial debugging
-  Serial.begin(115200);
+  #endif
+
   setup_wifi(); // Start by connecting to WiFi
   client.setServer(mqtt_server, 1883); // Set MQTT broker IP/Hostname and Port
   client.setCallback(callback);
+  strip.begin(); // Initialize Neopixel strip
 
 }
 
 void setup_wifi() {
 
   delay(10); // Small delay before starting WiFi activity
+
+  #if SERIAL_DEBUG
   Serial.println("Connecting to ");
   Serial.println(ssid);
+  #endif
 
   WiFi.begin(ssid, password); // This will conenct ESP to WiFi with given SSID and PASSWORD
 
   while (WiFi.status() != WL_CONNECTED) {
 
     delay(500); // Retry connection after 500 ms
+
+    #if SERIAL_DEBUG
     Serial.print(".");
+    #endif
 
 }
 
+  #if SERIAL_DEBUG
   Serial.println("");
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP()); // Prints IP Address on serial console
+  #endif
 
 }
 
@@ -68,22 +93,32 @@ void callback(char* topic, byte* payload, unsigned int length) {
   int c1 = message.indexOf(',');
   int c2 = message.indexOf(',',c1+1); // RGB values are sent in comma seperated order RR,GG,BB
 
-  int red = 4*(message.toInt());
-  int green = 4*((message.substring(c1+1).toInt())); // Value sent is 8-bit but ESP can do 10 bits PWM hence x By 4
-  int blue =  4*((message.substring(c2+1).toInt()));
+  int red = message.toInt();
+  int green = message.substring(c1+1).toInt(); // Value sent is 8-bit but ESP can do 10 bits PWM hence x By 4
+  int blue =  message.substring(c2+1).toInt();
 
   //Generating PWM corresponding to the RGB values
-   Serial.println(red);
-   Serial.println(green);
-   Serial.println(blue);
+  #if SERIAL_DEBUG
+  Serial.println(red);
+  Serial.println(green);
+  Serial.println(blue);
+  #endif
 
-   analogWrite(RED,red);
-   analogWrite(GREEN,green);
-   analogWrite(BLUE,blue);
+   #if NEOPIXEL
+   for(int i=0;i<=NUMPIXELS;i++){
 
-  //In case of NeoPixel Strip
-  //for(int i=0;i<=PIXEL_COUNT;i++)
-  //strip.setPixelColor(i, red, green, blue);
+      strip.setPixelColor(i, red, green, blue); // Write data to Neopixel stri[]
+      strip.show();
+      delay(1);
+
+   }
+   #endif
+
+  #if ANALOG_RGB 
+  analogWrite(RED,red);
+  analogWrite(GREEN,green); // Write data on analog RGB LED strip
+  analogWrite(BLUE,blue);
+  #endif
 
   delay(1); // Short delay for smoother animation
 
@@ -94,20 +129,27 @@ void reconnect() {
 
   // Loop until we're reconnected
   while (!client.connected()) {
-    Serial.print("Attempting MQTT connection...");
-    // Attempt to connect
+    
+    #if SERIAL_DEBUG
+    Serial.print("Attempting MQTT connection..."); 
+    #endif
+    
     if (client.connect("ESP8266Client")) {
 
-      Serial.println("connected");
+      #if SERIAL_DEBUG
+      Serial.println("connected"); // Attempt to connect
+      #endif
       client.subscribe(TOPIC); // Subscribe to topic defined above
 
     }
 
     else {
 
+      #if SERIAL_DEBUG
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 5 seconds");
+      #endif
       // Wait 5 seconds before retrying
       delay(5000);
 
