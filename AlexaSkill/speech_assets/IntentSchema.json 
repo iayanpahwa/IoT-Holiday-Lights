@@ -1,0 +1,31 @@
+{
+  "intents": [
+    {
+      "intent": "OnIntent"
+    },
+    {
+      "intent": "OffIntent"
+    },
+    {
+      "intent": "BlueIntent"
+    },
+    {
+      "intent": "PurpleIntent"
+    },
+    {
+      "intent": "GreenIntent"
+    },
+    {
+      "intent": "RedIntent"
+    },
+    {
+      "intent": "OrangeIntent"
+    },
+    {
+      "intent": "YellowIntent"
+    },
+    {
+      "intent": "AMAZON.HelpIntent"
+    }   
+  ]
+}

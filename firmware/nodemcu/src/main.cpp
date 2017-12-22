@@ -4,7 +4,7 @@
 
 #define SERIAL_DEBUG   1
 #define NEOPIXEL       1
-#define ANALOG_RGB     1 
+#define ANALOG_RGB     0 
 
 #define NEOPIXEL_PIN   D8 // Pin on which Neopicel LED strip is connected
 #define NUMPIXELS      60 // Number of Neopixels LEDs in strip
@@ -14,10 +14,10 @@
 #define BLUE           D6 
 
 // Variable to hold network parameters
-const char* ssid = "........";
-const char* password = "........";
-const char* mqtt_server = "***.***.***.***"; //Address or IP
-const char* TOPIC = "myTopic";
+const char* ssid = "Xiaomi_3CF1";
+const char* password = "sska1234";
+const char* mqtt_server = "192.168.31.36"; //Address or IP
+const char* TOPIC = "cafeteria/trees";
 
 #if NEOPIXEL
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
